@@ -105,6 +105,11 @@ private:
     // you SEE on the canvas, regardless of the order you drew it in or
     // any stray clicks made for other tools.
     QVector<PolyEdge> polygonEdges;
+
+    // The last line drawn with DDA or Bresenham (grid coordinates). This is
+    // the mirror line for "Reflection about Line".
+    PolyEdge lastDrawnLine;
+    bool hasLastDrawnLine = false;
     void addPolygonEdge(const QPoint &a, const QPoint &b);
 
     // ---- 2D transformations ----
@@ -117,7 +122,11 @@ private:
     // Picks the polygon a transformation should start from and checks it
     // is a closed shape. Puts a message in the status label and returns
     // false if there isn't one.
-    bool getTransformSource(QVector<PolyEdge> &source);
+    //
+    // skipMirrorLine: used by "Reflection about Line". The mirror line is
+    // the last line drawn with DDA/Bresenham; if it is a stray line that
+    // isn't part of the polygon it is left out of the polygon.
+    bool getTransformSource(QVector<PolyEdge> &source, bool skipMirrorLine = false);
 
     // Shows the timing, remembers the result, and slides the polygon from
     // "source" (what's currently on screen) into "result" - see
@@ -192,6 +201,8 @@ private:
         QVector<QPoint> polygonPoints;
         QVector<PolyEdge> polygonEdges;
         QVector<PolyEdge> transformedEdges;
+        PolyEdge lastDrawnLine;
+        bool hasLastDrawnLine = false;
     };
 
     CanvasState captureState();

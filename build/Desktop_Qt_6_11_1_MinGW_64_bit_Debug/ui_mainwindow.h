@@ -137,19 +137,7 @@ public:
     QLabel *reflectAxisLabel;
     QComboBox *reflect_axis_comboBox;
     QPushButton *reflect_polygon;
-    QHBoxLayout *reflectLineP1Layout;
-    QLabel *reflectLineP1Label;
-    QSpinBox *reflect_line_x1_spinBox;
-    QSpinBox *reflect_line_y1_spinBox;
-    QHBoxLayout *reflectLineP2Layout;
-    QLabel *reflectLineP2Label;
-    QSpinBox *reflect_line_x2_spinBox;
-    QSpinBox *reflect_line_y2_spinBox;
     QPushButton *reflect_line_polygon;
-    QHBoxLayout *rotatePointLayout;
-    QLabel *rotatePtLabel;
-    QSpinBox *rotate_pt_x_spinBox;
-    QSpinBox *rotate_pt_y_spinBox;
     QHBoxLayout *rotatePointAngleLayout;
     QDoubleSpinBox *rotate_pt_angle_spinBox;
     QPushButton *rotate_point_polygon;
@@ -934,70 +922,6 @@ public:
 
         transformSectionLayout->addWidget(reflect_polygon);
 
-        reflectLineP1Layout = new QHBoxLayout();
-        reflectLineP1Layout->setObjectName("reflectLineP1Layout");
-        reflectLineP1Label = new QLabel(transformSectionGroupBox);
-        reflectLineP1Label->setObjectName("reflectLineP1Label");
-
-        reflectLineP1Layout->addWidget(reflectLineP1Label);
-
-        reflect_line_x1_spinBox = new QSpinBox(transformSectionGroupBox);
-        reflect_line_x1_spinBox->setObjectName("reflect_line_x1_spinBox");
-        sizePolicy2.setHeightForWidth(reflect_line_x1_spinBox->sizePolicy().hasHeightForWidth());
-        reflect_line_x1_spinBox->setSizePolicy(sizePolicy2);
-        reflect_line_x1_spinBox->setMinimumSize(QSize(50, 0));
-        reflect_line_x1_spinBox->setMinimum(-999);
-        reflect_line_x1_spinBox->setMaximum(999);
-        reflect_line_x1_spinBox->setValue(0);
-
-        reflectLineP1Layout->addWidget(reflect_line_x1_spinBox);
-
-        reflect_line_y1_spinBox = new QSpinBox(transformSectionGroupBox);
-        reflect_line_y1_spinBox->setObjectName("reflect_line_y1_spinBox");
-        sizePolicy2.setHeightForWidth(reflect_line_y1_spinBox->sizePolicy().hasHeightForWidth());
-        reflect_line_y1_spinBox->setSizePolicy(sizePolicy2);
-        reflect_line_y1_spinBox->setMinimumSize(QSize(50, 0));
-        reflect_line_y1_spinBox->setMinimum(-999);
-        reflect_line_y1_spinBox->setMaximum(999);
-        reflect_line_y1_spinBox->setValue(2);
-
-        reflectLineP1Layout->addWidget(reflect_line_y1_spinBox);
-
-
-        transformSectionLayout->addLayout(reflectLineP1Layout);
-
-        reflectLineP2Layout = new QHBoxLayout();
-        reflectLineP2Layout->setObjectName("reflectLineP2Layout");
-        reflectLineP2Label = new QLabel(transformSectionGroupBox);
-        reflectLineP2Label->setObjectName("reflectLineP2Label");
-
-        reflectLineP2Layout->addWidget(reflectLineP2Label);
-
-        reflect_line_x2_spinBox = new QSpinBox(transformSectionGroupBox);
-        reflect_line_x2_spinBox->setObjectName("reflect_line_x2_spinBox");
-        sizePolicy2.setHeightForWidth(reflect_line_x2_spinBox->sizePolicy().hasHeightForWidth());
-        reflect_line_x2_spinBox->setSizePolicy(sizePolicy2);
-        reflect_line_x2_spinBox->setMinimumSize(QSize(50, 0));
-        reflect_line_x2_spinBox->setMinimum(-999);
-        reflect_line_x2_spinBox->setMaximum(999);
-        reflect_line_x2_spinBox->setValue(4);
-
-        reflectLineP2Layout->addWidget(reflect_line_x2_spinBox);
-
-        reflect_line_y2_spinBox = new QSpinBox(transformSectionGroupBox);
-        reflect_line_y2_spinBox->setObjectName("reflect_line_y2_spinBox");
-        sizePolicy2.setHeightForWidth(reflect_line_y2_spinBox->sizePolicy().hasHeightForWidth());
-        reflect_line_y2_spinBox->setSizePolicy(sizePolicy2);
-        reflect_line_y2_spinBox->setMinimumSize(QSize(50, 0));
-        reflect_line_y2_spinBox->setMinimum(-999);
-        reflect_line_y2_spinBox->setMaximum(999);
-        reflect_line_y2_spinBox->setValue(6);
-
-        reflectLineP2Layout->addWidget(reflect_line_y2_spinBox);
-
-
-        transformSectionLayout->addLayout(reflectLineP2Layout);
-
         reflect_line_polygon = new QPushButton(transformSectionGroupBox);
         reflect_line_polygon->setObjectName("reflect_line_polygon");
         reflect_line_polygon->setMinimumSize(QSize(0, 44));
@@ -1012,38 +936,6 @@ public:
 "}"));
 
         transformSectionLayout->addWidget(reflect_line_polygon);
-
-        rotatePointLayout = new QHBoxLayout();
-        rotatePointLayout->setObjectName("rotatePointLayout");
-        rotatePtLabel = new QLabel(transformSectionGroupBox);
-        rotatePtLabel->setObjectName("rotatePtLabel");
-
-        rotatePointLayout->addWidget(rotatePtLabel);
-
-        rotate_pt_x_spinBox = new QSpinBox(transformSectionGroupBox);
-        rotate_pt_x_spinBox->setObjectName("rotate_pt_x_spinBox");
-        sizePolicy2.setHeightForWidth(rotate_pt_x_spinBox->sizePolicy().hasHeightForWidth());
-        rotate_pt_x_spinBox->setSizePolicy(sizePolicy2);
-        rotate_pt_x_spinBox->setMinimumSize(QSize(50, 0));
-        rotate_pt_x_spinBox->setMinimum(-999);
-        rotate_pt_x_spinBox->setMaximum(999);
-        rotate_pt_x_spinBox->setValue(3);
-
-        rotatePointLayout->addWidget(rotate_pt_x_spinBox);
-
-        rotate_pt_y_spinBox = new QSpinBox(transformSectionGroupBox);
-        rotate_pt_y_spinBox->setObjectName("rotate_pt_y_spinBox");
-        sizePolicy2.setHeightForWidth(rotate_pt_y_spinBox->sizePolicy().hasHeightForWidth());
-        rotate_pt_y_spinBox->setSizePolicy(sizePolicy2);
-        rotate_pt_y_spinBox->setMinimumSize(QSize(50, 0));
-        rotate_pt_y_spinBox->setMinimum(-999);
-        rotate_pt_y_spinBox->setMaximum(999);
-        rotate_pt_y_spinBox->setValue(2);
-
-        rotatePointLayout->addWidget(rotate_pt_y_spinBox);
-
-
-        transformSectionLayout->addLayout(rotatePointLayout);
 
         rotatePointAngleLayout = new QHBoxLayout();
         rotatePointAngleLayout->setObjectName("rotatePointAngleLayout");
@@ -1199,7 +1091,7 @@ public:
         mousePressCaption4->setText(QCoreApplication::translate("MainWindow", "Pressed:", nullptr));
         mouse_pressed_4->setText(QCoreApplication::translate("MainWindow", "-", nullptr));
         transformSectionGroupBox->setTitle(QCoreApplication::translate("MainWindow", "2D Transformations", nullptr));
-        transform_hint->setText(QCoreApplication::translate("MainWindow", "1) Click 3+ grid points  2) Draw Closed Polygon  3) Pick a transformation. a) to e) are about the origin (0, 0); f) and g) use the line / pivot point you enter. Press Reset Polygon first if you clicked other points earlier.", nullptr));
+        transform_hint->setText(QCoreApplication::translate("MainWindow", "1) Click 3+ grid points  2) Draw Closed Polygon  3) Pick a transformation. a) to e) are about the origin (0, 0); f) uses the last line you drew (DDA / Bresenham) as the mirror line, and g) uses the last clicked cell as the pivot point. Press Reset Polygon first if you clicked other points earlier.", nullptr));
         draw_polygon->setText(QCoreApplication::translate("MainWindow", "Draw Closed Polygon", nullptr));
 #if QT_CONFIG(tooltip)
         transform_chain_checkBox->setToolTip(QCoreApplication::translate("MainWindow", "Off: every transformation starts from the original polygon. On: it starts from the last transformed copy, so transformations can be combined step by step.", nullptr));
@@ -1225,16 +1117,7 @@ public:
         reflect_axis_comboBox->setItemText(1, QCoreApplication::translate("MainWindow", "Y axis", nullptr));
 
         reflect_polygon->setText(QCoreApplication::translate("MainWindow", "e) Reflection", nullptr));
-        reflectLineP1Label->setText(QCoreApplication::translate("MainWindow", "P1", nullptr));
-        reflect_line_x1_spinBox->setPrefix(QCoreApplication::translate("MainWindow", "x: ", nullptr));
-        reflect_line_y1_spinBox->setPrefix(QCoreApplication::translate("MainWindow", "y: ", nullptr));
-        reflectLineP2Label->setText(QCoreApplication::translate("MainWindow", "P2", nullptr));
-        reflect_line_x2_spinBox->setPrefix(QCoreApplication::translate("MainWindow", "x: ", nullptr));
-        reflect_line_y2_spinBox->setPrefix(QCoreApplication::translate("MainWindow", "y: ", nullptr));
         reflect_line_polygon->setText(QCoreApplication::translate("MainWindow", "f) Reflection about Line", nullptr));
-        rotatePtLabel->setText(QCoreApplication::translate("MainWindow", "Pivot", nullptr));
-        rotate_pt_x_spinBox->setPrefix(QCoreApplication::translate("MainWindow", "x: ", nullptr));
-        rotate_pt_y_spinBox->setPrefix(QCoreApplication::translate("MainWindow", "y: ", nullptr));
 #if QT_CONFIG(tooltip)
         rotate_pt_angle_spinBox->setToolTip(QCoreApplication::translate("MainWindow", "Positive = counter-clockwise", nullptr));
 #endif // QT_CONFIG(tooltip)

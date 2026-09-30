@@ -263,6 +263,8 @@ MainWindow::CanvasState MainWindow::captureState()
     state.polygonPoints = polygonPoints;
     state.polygonEdges = polygonEdges;
     state.transformedEdges = transformedEdges;
+    state.lastDrawnLine = lastDrawnLine;
+    state.hasLastDrawnLine = hasLastDrawnLine;
     return state;
 }
 
@@ -272,6 +274,8 @@ void MainWindow::restoreState(const CanvasState &state)
     polygonPoints = state.polygonPoints;
     polygonEdges = state.polygonEdges;
     transformedEdges = state.transformedEdges;
+    lastDrawnLine = state.lastDrawnLine;
+    hasLastDrawnLine = state.hasLastDrawnLine;
     updatePolygonInfo();
 }
 
@@ -400,6 +404,7 @@ void MainWindow::on_clear_clicked()
     polygonPoints.clear();
     polygonEdges.clear();
     transformedEdges.clear();
+    hasLastDrawnLine = false;
     updatePolygonInfo();
 
     QPixmap pix(
@@ -430,6 +435,7 @@ void MainWindow::on_spinBox_valueChanged(int arg1)
     polygonPoints.clear();
     polygonEdges.clear();
     transformedEdges.clear();
+    hasLastDrawnLine = false;
     updatePolygonInfo();
 
     // -----------------------------------------
@@ -617,6 +623,9 @@ void MainWindow::on_draw_line_clicked() // Bressenham
 
         pushUndoState();
         addPolygonEdge(lastPoint1, lastPoint2);
+        lastDrawnLine.a = lastPoint1;
+        lastDrawnLine.b = lastPoint2;
+        hasLastDrawnLine = true;
         lastShapeColor = Colors::bres_line_color;
         animatePoints(result.points, Colors::bres_line_color);
     }
@@ -639,6 +648,9 @@ void MainWindow::on_draw_line_2_clicked() // DDA
 
         pushUndoState();
         addPolygonEdge(lastPoint1, lastPoint2);
+        lastDrawnLine.a = lastPoint1;
+        lastDrawnLine.b = lastPoint2;
+        hasLastDrawnLine = true;
         lastShapeColor = Colors::dda_line_color;
         animatePoints(result.points, Colors::dda_line_color);
     }
@@ -1020,7 +1032,7 @@ void MainWindow::on_draw_polygon_clicked()
 }
 
 
-bool MainWindow::getTransformSource(QVector<PolyEdge> &source)
+bool MainWindow::getTransformSource(QVector<PolyEdge> &source, bool skipMirrorLine)
 {
     // "Apply to previous result": keep transforming the last copy, so
     // e.g. rotate-then-translate can be built up step by step.
@@ -1043,7 +1055,32 @@ bool MainWindow::getTransformSource(QVector<PolyEdge> &source)
 
     // Same check scanline fill uses: the sides drawn so far must close
     // up into a polygon (an open chain is closed automatically).
-    if (!algorithms::PreparePolygonEdges(source))
+    bool ok = algorithms::PreparePolygonEdges(source);
+
+    // The mirror line is drawn like any other line, so it was recorded as
+    // a polygon edge too. If the polygon only closes once it is left out,
+    // it was a separate mirror line - drop it and try again.
+    if (!ok && skipMirrorLine && hasLastDrawnLine)
+    {
+        QVector<PolyEdge> trimmed = polygonEdges;
+        for (int i = trimmed.size() - 1; i >= 0; --i)
+        {
+            const PolyEdge &e = trimmed[i];
+            if ((e.a == lastDrawnLine.a && e.b == lastDrawnLine.b) ||
+                (e.a == lastDrawnLine.b && e.b == lastDrawnLine.a))
+            {
+                trimmed.remove(i);
+                break;
+            }
+        }
+        if (algorithms::PreparePolygonEdges(trimmed))
+        {
+            source = trimmed;
+            ok = true;
+        }
+    }
+
+    if (!ok)
     {
         ui->execution_time->setText(
             "Transform: the drawn lines don't form a closed polygon (need "
@@ -1358,26 +1395,27 @@ void MainWindow::on_reflect_polygon_clicked()
 }
 
 
-// f) Reflection about an arbitrary line, given by two points on it.
-// The line is drawn across the whole canvas (pale yellow) so it is clear
-// what the polygon is being mirrored over.
+// f) Reflection about an arbitrary line: the last line drawn with DDA or
+// Bresenham is the mirror line. It is extended across the whole canvas
+// (pale yellow) so it is clear what the polygon is being mirrored over.
 void MainWindow::on_reflect_line_polygon_clicked()
 {
-    int x1 = ui->reflect_line_x1_spinBox->value();
-    int y1 = ui->reflect_line_y1_spinBox->value();
-    int x2 = ui->reflect_line_x2_spinBox->value();
-    int y2 = ui->reflect_line_y2_spinBox->value();
-
-    if (x1 == x2 && y1 == y2)
+    if (!hasLastDrawnLine)
     {
         ui->execution_time->setText(
-            "Reflection about line: P1 and P2 must be two different points"
+            "Reflection about line: draw a line first (DDA or Bresenham) - "
+            "it is used as the mirror line"
             );
         return;
     }
 
+    int x1 = lastDrawnLine.a.x();
+    int y1 = lastDrawnLine.a.y();
+    int x2 = lastDrawnLine.b.x();
+    int y2 = lastDrawnLine.b.y();
+
     QVector<PolyEdge> source;
-    if (!getTransformSource(source))
+    if (!getTransformSource(source, true))
         return;
 
     // Visible part of the grid, so the mirror line can be drawn edge to edge.
@@ -1403,15 +1441,25 @@ void MainWindow::on_reflect_line_polygon_clicked()
 
 
 // g) Rotation about an arbitrary point (counter-clockwise for positive
-// angles). The pivot cell is marked in magenta.
+// angles). The pivot is the last cell clicked on the grid, and is marked
+// in magenta.
 void MainWindow::on_rotate_point_polygon_clicked()
 {
+    if (lastPoint2 == QPoint(-1, -1))
+    {
+        ui->execution_time->setText(
+            "Rotation about point: click a grid cell first - the last "
+            "clicked cell is used as the pivot"
+            );
+        return;
+    }
+
     QVector<PolyEdge> source;
     if (!getTransformSource(source))
         return;
 
-    int px = ui->rotate_pt_x_spinBox->value();
-    int py = ui->rotate_pt_y_spinBox->value();
+    int px = lastPoint2.x();
+    int py = lastPoint2.y();
     double angle = ui->rotate_pt_angle_spinBox->value();
 
     QVector<QPoint> pivot;
