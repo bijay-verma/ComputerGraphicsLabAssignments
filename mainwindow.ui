@@ -78,6 +78,9 @@
       <property name="frameShape">
        <enum>QFrame::Shape::NoFrame</enum>
       </property>
+      <property name="horizontalScrollBarPolicy">
+       <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
+      </property>
       <property name="widgetResizable">
        <bool>true</bool>
       </property>
@@ -658,6 +661,957 @@ QPushButton:hover {
                 </item>
                 <item>
                  <widget class="QLabel" name="mouse_pressed_3">
+                  <property name="text">
+                   <string>-</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="fillSectionGroupBox">
+          <property name="title">
+           <string>Filling Algorithms</string>
+          </property>
+          <layout class="QVBoxLayout" name="fillSectionLayout">
+           <item>
+            <widget class="QPushButton" name="boundary_fill">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>44</height>
+              </size>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">QPushButton {
+    background-color: rgb(255, 82, 82);
+    color: black;            /* Ensures text stays readable on bright cyan */
+
+    border-radius: 4px;
+}
+
+QPushButton:hover {
+    background-color: rgb(200, 60, 60); 
+}background-color: red;</string>
+             </property>
+             <property name="text">
+              <string>Boundary Fill</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="flood_fill">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>44</height>
+              </size>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">QPushButton {
+    background-color: rgb(64, 158, 255);
+    color: black;            /* Ensures text stays readable on bright cyan */
+
+    border-radius: 4px;
+}
+
+QPushButton:hover {
+    background-color: rgb(40, 120, 200); 
+}background-color: red;</string>
+             </property>
+             <property name="text">
+              <string>Flood Fill</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="scanline_fill">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>44</height>
+              </size>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">QPushButton {
+    background-color: rgb(180, 210, 60);
+    color: black;            /* Ensures text stays readable on bright cyan */
+
+    border-radius: 4px;
+}
+
+QPushButton:hover {
+    background-color: rgb(140, 165, 40); 
+}background-color: red;</string>
+             </property>
+             <property name="text">
+              <string>Scanline Fill</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="polygon_info">
+             <property name="text">
+              <string>Polygon vertices: 0</string>
+             </property>
+             <property name="wordWrap">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="reset_polygon">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>30</height>
+              </size>
+             </property>
+             <property name="toolTip">
+              <string>Forget the collected vertices and start a new polygon</string>
+             </property>
+             <property name="text">
+              <string>Reset Polygon</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QGroupBox" name="mouseGroupBox4">
+             <property name="title">
+              <string>Mouse Info</string>
+             </property>
+             <layout class="QVBoxLayout" name="mouseGroupLayout4">
+              <item>
+               <layout class="QHBoxLayout" name="mouseMoveLayout4">
+                <item>
+                 <widget class="QLabel" name="mouseMoveCaption4">
+                  <property name="text">
+                   <string>Position:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="mouse_movement_4">
+                  <property name="text">
+                   <string>-</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="mousePressLayout4">
+                <item>
+                 <widget class="QLabel" name="mousePressCaption4">
+                  <property name="text">
+                   <string>Pressed:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="mouse_pressed_4">
+                  <property name="text">
+                   <string>-</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="transformSectionGroupBox">
+          <property name="title">
+           <string>2D Transformations</string>
+          </property>
+          <layout class="QVBoxLayout" name="transformSectionLayout">
+           <item>
+            <widget class="QLabel" name="transform_hint">
+             <property name="text">
+              <string>1) Click 3+ grid points  2) Draw Closed Polygon  3) Pick a transformation. a) to e) are about the origin (0, 0); f) and g) use the line / pivot point you enter. Press Reset Polygon first if you clicked other points earlier.</string>
+             </property>
+             <property name="wordWrap">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="draw_polygon">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>44</height>
+              </size>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">QPushButton {
+    background-color: rgb(200, 160, 255);
+    color: black;
+    border-radius: 4px;
+}
+
+QPushButton:hover {
+    background-color: rgb(165, 125, 220);
+}</string>
+             </property>
+             <property name="text">
+              <string>Draw Closed Polygon</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="transform_chain_checkBox">
+             <property name="toolTip">
+              <string>Off: every transformation starts from the original polygon. On: it starts from the last transformed copy, so transformations can be combined step by step.</string>
+             </property>
+             <property name="text">
+              <string>Chain: use previous result</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="translateInputLayout">
+             <item>
+              <widget class="QSpinBox" name="translate_tx_spinBox">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>50</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="prefix">
+                <string>Tx: </string>
+               </property>
+               <property name="minimum">
+                <number>-999</number>
+               </property>
+               <property name="maximum">
+                <number>999</number>
+               </property>
+               <property name="value">
+                <number>5</number>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QSpinBox" name="translate_ty_spinBox">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>50</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="prefix">
+                <string>Ty: </string>
+               </property>
+               <property name="minimum">
+                <number>-999</number>
+               </property>
+               <property name="maximum">
+                <number>999</number>
+               </property>
+               <property name="value">
+                <number>3</number>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="QPushButton" name="translate_polygon">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>44</height>
+              </size>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">QPushButton {
+    background-color: rgb(255, 160, 122);
+    color: black;
+    border-radius: 4px;
+}
+
+QPushButton:hover {
+    background-color: rgb(220, 125, 90);
+}</string>
+             </property>
+             <property name="text">
+              <string>a) Translation</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="rotateInputLayout">
+             <item>
+              <widget class="QDoubleSpinBox" name="rotate_angle_spinBox">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>50</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="toolTip">
+                <string>Positive = counter-clockwise</string>
+               </property>
+               <property name="prefix">
+                <string>Angle: </string>
+               </property>
+               <property name="suffix">
+                <string> deg</string>
+               </property>
+               <property name="decimals">
+                <number>1</number>
+               </property>
+               <property name="minimum">
+                <double>-360.0</double>
+               </property>
+               <property name="maximum">
+                <double>360.0</double>
+               </property>
+               <property name="singleStep">
+                <double>5.0</double>
+               </property>
+               <property name="value">
+                <double>45.0</double>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="QPushButton" name="rotate_polygon">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>44</height>
+              </size>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">QPushButton {
+    background-color: rgb(238, 130, 238);
+    color: black;
+    border-radius: 4px;
+}
+
+QPushButton:hover {
+    background-color: rgb(200, 100, 200);
+}</string>
+             </property>
+             <property name="text">
+              <string>b) Rotation</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="scaleInputLayout">
+             <item>
+              <widget class="QDoubleSpinBox" name="scale_sx_spinBox">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>50</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="prefix">
+                <string>Sx: </string>
+               </property>
+               <property name="decimals">
+                <number>2</number>
+               </property>
+               <property name="minimum">
+                <double>-100.0</double>
+               </property>
+               <property name="maximum">
+                <double>100.0</double>
+               </property>
+               <property name="singleStep">
+                <double>0.1</double>
+               </property>
+               <property name="value">
+                <double>2.0</double>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QDoubleSpinBox" name="scale_sy_spinBox">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>50</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="prefix">
+                <string>Sy: </string>
+               </property>
+               <property name="decimals">
+                <number>2</number>
+               </property>
+               <property name="minimum">
+                <double>-100.0</double>
+               </property>
+               <property name="maximum">
+                <double>100.0</double>
+               </property>
+               <property name="singleStep">
+                <double>0.1</double>
+               </property>
+               <property name="value">
+                <double>2.0</double>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="QPushButton" name="scale_polygon">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>44</height>
+              </size>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">QPushButton {
+    background-color: rgb(176, 224, 230);
+    color: black;
+    border-radius: 4px;
+}
+
+QPushButton:hover {
+    background-color: rgb(140, 190, 200);
+}</string>
+             </property>
+             <property name="text">
+              <string>c) Scaling</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="shearInputLayout">
+             <item>
+              <widget class="QDoubleSpinBox" name="shear_x_spinBox">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>50</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="prefix">
+                <string>Shx: </string>
+               </property>
+               <property name="decimals">
+                <number>2</number>
+               </property>
+               <property name="minimum">
+                <double>-100.0</double>
+               </property>
+               <property name="maximum">
+                <double>100.0</double>
+               </property>
+               <property name="singleStep">
+                <double>0.1</double>
+               </property>
+               <property name="value">
+                <double>0.5</double>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QDoubleSpinBox" name="shear_y_spinBox">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>50</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="prefix">
+                <string>Shy: </string>
+               </property>
+               <property name="decimals">
+                <number>2</number>
+               </property>
+               <property name="minimum">
+                <double>-100.0</double>
+               </property>
+               <property name="maximum">
+                <double>100.0</double>
+               </property>
+               <property name="singleStep">
+                <double>0.1</double>
+               </property>
+               <property name="value">
+                <double>0.0</double>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="QPushButton" name="shear_polygon">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>44</height>
+              </size>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">QPushButton {
+    background-color: rgb(222, 184, 135);
+    color: black;
+    border-radius: 4px;
+}
+
+QPushButton:hover {
+    background-color: rgb(190, 150, 100);
+}</string>
+             </property>
+             <property name="text">
+              <string>d) Shear</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="reflectInputLayout">
+             <item>
+              <widget class="QLabel" name="reflectAxisLabel">
+               <property name="text">
+                <string>Reflect about:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QComboBox" name="reflect_axis_comboBox">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="sizeAdjustPolicy">
+                <enum>QComboBox::SizeAdjustPolicy::AdjustToMinimumContentsLengthWithIcon</enum>
+               </property>
+               <property name="minimumContentsLength">
+                <number>4</number>
+               </property>
+               <item>
+                <property name="text">
+                 <string>X axis</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Y axis</string>
+                </property>
+               </item>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="QPushButton" name="reflect_polygon">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>44</height>
+              </size>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">QPushButton {
+    background-color: rgb(152, 251, 152);
+    color: black;
+    border-radius: 4px;
+}
+
+QPushButton:hover {
+    background-color: rgb(115, 215, 115);
+}</string>
+             </property>
+             <property name="text">
+              <string>e) Reflection</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="reflectLineP1Layout">
+             <item>
+              <widget class="QLabel" name="reflectLineP1Label">
+               <property name="text">
+                <string>P1</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QSpinBox" name="reflect_line_x1_spinBox">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>50</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="prefix">
+                <string>x: </string>
+               </property>
+               <property name="minimum">
+                <number>-999</number>
+               </property>
+               <property name="maximum">
+                <number>999</number>
+               </property>
+               <property name="value">
+                <number>0</number>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QSpinBox" name="reflect_line_y1_spinBox">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>50</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="prefix">
+                <string>y: </string>
+               </property>
+               <property name="minimum">
+                <number>-999</number>
+               </property>
+               <property name="maximum">
+                <number>999</number>
+               </property>
+               <property name="value">
+                <number>2</number>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="reflectLineP2Layout">
+             <item>
+              <widget class="QLabel" name="reflectLineP2Label">
+               <property name="text">
+                <string>P2</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QSpinBox" name="reflect_line_x2_spinBox">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>50</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="prefix">
+                <string>x: </string>
+               </property>
+               <property name="minimum">
+                <number>-999</number>
+               </property>
+               <property name="maximum">
+                <number>999</number>
+               </property>
+               <property name="value">
+                <number>4</number>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QSpinBox" name="reflect_line_y2_spinBox">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>50</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="prefix">
+                <string>y: </string>
+               </property>
+               <property name="minimum">
+                <number>-999</number>
+               </property>
+               <property name="maximum">
+                <number>999</number>
+               </property>
+               <property name="value">
+                <number>6</number>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="QPushButton" name="reflect_line_polygon">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>44</height>
+              </size>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">QPushButton {
+    background-color: rgb(255, 200, 220);
+    color: black;
+    border-radius: 4px;
+}
+
+QPushButton:hover {
+    background-color: rgb(225, 165, 190);
+}</string>
+             </property>
+             <property name="text">
+              <string>f) Reflection about Line</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="rotatePointLayout">
+             <item>
+              <widget class="QLabel" name="rotatePtLabel">
+               <property name="text">
+                <string>Pivot</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QSpinBox" name="rotate_pt_x_spinBox">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>50</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="prefix">
+                <string>x: </string>
+               </property>
+               <property name="minimum">
+                <number>-999</number>
+               </property>
+               <property name="maximum">
+                <number>999</number>
+               </property>
+               <property name="value">
+                <number>3</number>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QSpinBox" name="rotate_pt_y_spinBox">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>50</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="prefix">
+                <string>y: </string>
+               </property>
+               <property name="minimum">
+                <number>-999</number>
+               </property>
+               <property name="maximum">
+                <number>999</number>
+               </property>
+               <property name="value">
+                <number>2</number>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="rotatePointAngleLayout">
+             <item>
+              <widget class="QDoubleSpinBox" name="rotate_pt_angle_spinBox">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>50</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="toolTip">
+                <string>Positive = counter-clockwise</string>
+               </property>
+               <property name="prefix">
+                <string>Angle: </string>
+               </property>
+               <property name="suffix">
+                <string> deg</string>
+               </property>
+               <property name="decimals">
+                <number>1</number>
+               </property>
+               <property name="minimum">
+                <double>-360.0</double>
+               </property>
+               <property name="maximum">
+                <double>360.0</double>
+               </property>
+               <property name="singleStep">
+                <double>5.0</double>
+               </property>
+               <property name="value">
+                <double>90.0</double>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="QPushButton" name="rotate_point_polygon">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>44</height>
+              </size>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">QPushButton {
+    background-color: rgb(255, 200, 120);
+    color: black;
+    border-radius: 4px;
+}
+
+QPushButton:hover {
+    background-color: rgb(225, 165, 85);
+}</string>
+             </property>
+             <property name="text">
+              <string>g) Rotation about Point</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QGroupBox" name="mouseGroupBox5">
+             <property name="title">
+              <string>Mouse Info</string>
+             </property>
+             <layout class="QVBoxLayout" name="mouseGroupLayout5">
+              <item>
+               <layout class="QHBoxLayout" name="mouseMoveLayout5">
+                <item>
+                 <widget class="QLabel" name="mouseMoveCaption5">
+                  <property name="text">
+                   <string>Position:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="mouse_movement_5">
+                  <property name="text">
+                   <string>-</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="mousePressLayout5">
+                <item>
+                 <widget class="QLabel" name="mousePressCaption5">
+                  <property name="text">
+                   <string>Pressed:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="mouse_pressed_5">
                   <property name="text">
                    <string>-</string>
                   </property>
