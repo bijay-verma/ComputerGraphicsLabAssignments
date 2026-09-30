@@ -1073,3 +1073,263 @@ AlgorithmResult algorithms::Line_Across(int x1, int y1, int x2, int y2,
 
     return { points, durationNs };
 }
+
+
+
+// ========================================================
+// CLIPPING
+// ========================================================
+
+namespace {
+const int CS_INSIDE = 0;
+const int CS_LEFT   = 1;
+const int CS_RIGHT  = 2;
+const int CS_BOTTOM = 4;
+const int CS_TOP    = 8;
+
+int csOutcode(double x, double y, int xmin, int ymin, int xmax, int ymax)
+{
+    int code = CS_INSIDE;
+    if (x < xmin)      code |= CS_LEFT;
+    else if (x > xmax) code |= CS_RIGHT;
+    if (y < ymin)      code |= CS_BOTTOM;
+    else if (y > ymax) code |= CS_TOP;
+    return code;
+}
+}
+
+LineClipResult algorithms::Cohen_Sutherland_Line(int x0i, int y0i, int x1i, int y1i,
+                                                 int xmin, int ymin,
+                                                 int xmax, int ymax)
+{
+    auto start = std::chrono::steady_clock::now();
+
+    LineClipResult result;
+
+    double x0 = x0i, y0 = y0i, x1 = x1i, y1 = y1i;
+
+    int code0 = csOutcode(x0, y0, xmin, ymin, xmax, ymax);
+    int code1 = csOutcode(x1, y1, xmin, ymin, xmax, ymax);
+
+    while (true)
+    {
+        if ((code0 | code1) == 0)
+        {
+            // Both endpoints inside: accept what is left.
+            result.accepted = true;
+            break;
+        }
+
+        if ((code0 & code1) != 0)
+        {
+            // Both endpoints on the same outside side: nothing is visible.
+            result.accepted = false;
+            break;
+        }
+
+        // At least one endpoint is outside; move it onto the window edge.
+        int codeOut = code0 ? code0 : code1;
+        double x = 0, y = 0;
+
+        if (codeOut & CS_TOP)
+        {
+            x = x0 + (x1 - x0) * (ymax - y0) / (y1 - y0);
+            y = ymax;
+        }
+        else if (codeOut & CS_BOTTOM)
+        {
+            x = x0 + (x1 - x0) * (ymin - y0) / (y1 - y0);
+            y = ymin;
+        }
+        else if (codeOut & CS_RIGHT)
+        {
+            y = y0 + (y1 - y0) * (xmax - x0) / (x1 - x0);
+            x = xmax;
+        }
+        else // CS_LEFT
+        {
+            y = y0 + (y1 - y0) * (xmin - x0) / (x1 - x0);
+            x = xmin;
+        }
+
+        if (codeOut == code0)
+        {
+            x0 = x;
+            y0 = y;
+            code0 = csOutcode(x0, y0, xmin, ymin, xmax, ymax);
+        }
+        else
+        {
+            x1 = x;
+            y1 = y;
+            code1 = csOutcode(x1, y1, xmin, ymin, xmax, ymax);
+        }
+
+        ++result.iterations;
+    }
+
+    if (result.accepted)
+    {
+        // Round back onto the grid; the clamp keeps a rounded cell from
+        // slipping just outside the window.
+        auto snap = [](double v, int lo, int hi) {
+            return std::min(hi, std::max(lo, static_cast<int>(std::lround(v))));
+        };
+
+        result.a = QPoint(snap(x0, xmin, xmax), snap(y0, ymin, ymax));
+        result.b = QPoint(snap(x1, xmin, xmax), snap(y1, ymin, ymax));
+    }
+
+    auto end = std::chrono::steady_clock::now();
+    result.executionTimeNs =
+        std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
+
+    return result;
+}
+
+
+bool algorithms::Polygon_Vertices(const QVector<PolyEdge> &edges, QVector<QPoint> &vertices)
+{
+    vertices.clear();
+
+    typedef std::pair<int, int> Key;
+    auto keyOf = [](const QPoint &p) { return Key(p.x(), p.y()); };
+
+    const int n = edges.size();
+    if (n < 3)
+        return false;
+
+    // vertex -> the edges that touch it
+    std::map<Key, QVector<int>> touching;
+    for (int i = 0; i < n; ++i)
+    {
+        touching[keyOf(edges[i].a)].append(i);
+        touching[keyOf(edges[i].b)].append(i);
+    }
+
+    for (const auto &kv : touching)
+        if (kv.second.size() != 2)
+            return false;
+
+    // Walk the loop: leave each vertex along the edge we didn't arrive by.
+    QVector<bool> used(n, false);
+    QPoint cur = edges[0].a;
+    int ei = 0;
+
+    for (int step = 0; step < n; ++step)
+    {
+        if (used[ei])
+            return false;
+        used[ei] = true;
+
+        vertices.append(cur);
+
+        QPoint next = (edges[ei].a == cur) ? edges[ei].b : edges[ei].a;
+        const QVector<int> &inc = touching[keyOf(next)];
+        ei = (inc[0] == ei) ? inc[1] : inc[0];
+        cur = next;
+    }
+
+    // A single loop brings us back to where we started.
+    if (cur != edges[0].a)
+    {
+        vertices.clear();
+        return false;
+    }
+
+    return true;
+}
+
+
+PolygonClipResult algorithms::Sutherland_Hodgman_Polygon(const QVector<QPoint> &polygon,
+                                                         int xmin, int ymin,
+                                                         int xmax, int ymax)
+{
+    auto start = std::chrono::steady_clock::now();
+
+    PolygonClipResult result;
+    result.inputVertices = polygon.size();
+
+    struct P { double x, y; };
+
+    QVector<P> current;
+    for (const QPoint &p : polygon)
+        current.append(P{ double(p.x()), double(p.y()) });
+
+    // One pass per window edge: 0 = left, 1 = right, 2 = bottom, 3 = top.
+    for (int edge = 0; edge < 4 && !current.isEmpty(); ++edge)
+    {
+        auto inside = [&](const P &p) {
+            switch (edge)
+            {
+            case 0:  return p.x >= xmin;
+            case 1:  return p.x <= xmax;
+            case 2:  return p.y >= ymin;
+            default: return p.y <= ymax;
+            }
+        };
+
+        // Where the side s->e crosses this window edge. Only called when
+        // one end is inside and the other outside, so the divisor is never 0.
+        auto crossing = [&](const P &s, const P &e) {
+            P r;
+            if (edge < 2)
+            {
+                const double X = (edge == 0) ? xmin : xmax;
+                r.x = X;
+                r.y = s.y + (e.y - s.y) * (X - s.x) / (e.x - s.x);
+            }
+            else
+            {
+                const double Y = (edge == 2) ? ymin : ymax;
+                r.y = Y;
+                r.x = s.x + (e.x - s.x) * (Y - s.y) / (e.y - s.y);
+            }
+            return r;
+        };
+
+        QVector<P> output;
+        const int n = current.size();
+
+        for (int i = 0; i < n; ++i)
+        {
+            const P &cur  = current[i];
+            const P &prev = current[(i + n - 1) % n];
+
+            const bool curIn  = inside(cur);
+            const bool prevIn = inside(prev);
+
+            if (curIn)
+            {
+                if (!prevIn)
+                    output.append(crossing(prev, cur));   // coming in
+                output.append(cur);
+            }
+            else if (prevIn)
+            {
+                output.append(crossing(prev, cur));       // going out
+            }
+        }
+
+        current = output;
+    }
+
+    // Round back onto the grid; the clamp keeps a rounded vertex from
+    // slipping just outside the window. Repeated vertices are dropped.
+    for (const P &p : current)
+    {
+        QPoint q(std::min(xmax, std::max(xmin, static_cast<int>(std::lround(p.x)))),
+                 std::min(ymax, std::max(ymin, static_cast<int>(std::lround(p.y)))));
+
+        if (result.vertices.isEmpty() || result.vertices.last() != q)
+            result.vertices.append(q);
+    }
+    while (result.vertices.size() > 1 && result.vertices.first() == result.vertices.last())
+        result.vertices.removeLast();
+
+    auto end = std::chrono::steady_clock::now();
+    result.executionTimeNs =
+        std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
+
+    return result;
+}

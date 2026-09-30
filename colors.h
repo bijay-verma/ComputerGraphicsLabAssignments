@@ -33,6 +33,9 @@ const QColor reflect_line_color(255, 200, 220);
 const QColor rotate_point_color(255, 200, 120);
 const QColor mirror_line_color(255, 255, 160);       // the line a reflection is done about
 const QColor pivot_color(255, 0, 255);               // the point a rotation is done about
+const QColor clip_window_color(120, 220, 255);       // rectangular clipping window outline
+const QColor clipped_line_color(255, 250, 200);      // the part of a line kept by line clipping
+const QColor clipped_polygon_color(255, 230, 140);    // the part of a polygon kept by polygon clipping
 const QColor clicked_point_color(255 , 255,255);       // when we click on any pixel , the highlighted color
 }
 

@@ -35,6 +35,30 @@ struct TransformResult
     long long executionTimeNs = 0;
 };
 
+// Result of clipping one line against a rectangular window: whether any
+// part of the line is inside, the clipped endpoints (already rounded back
+// onto the grid), how many clipping rounds it took (0 = trivially
+// accepted/rejected on the first outcode test), and the time it took.
+struct LineClipResult
+{
+    bool accepted = false;   // false = line lies completely outside
+    QPoint a;                // clipped start (valid only when accepted)
+    QPoint b;                // clipped end   (valid only when accepted)
+    int iterations = 0;
+    long long executionTimeNs = 0;
+};
+
+// Result of clipping a polygon against a rectangular window
+// (Sutherland-Hodgman): the clipped polygon's vertices in order (already
+// rounded back onto the grid; empty = nothing of the polygon is inside the
+// window), how many vertices the input had, and the time it took.
+struct PolygonClipResult
+{
+    QVector<QPoint> vertices;
+    int inputVertices = 0;
+    long long executionTimeNs = 0;
+};
+
 // Read-only view of the canvas, addressed in GRID coordinates.
 //
 // The drawing algorithms (line/circle/ellipse) are pure geometry - they
@@ -182,6 +206,32 @@ public:
     // inside the given grid window - used to show the mirror line.
     static AlgorithmResult Line_Across(int x1, int y1, int x2, int y2,
                                        int minX, int maxX, int minY, int maxY);
+
+    // ---- Clipping algorithms ----
+    // Cohen-Sutherland: clips the segment (x0, y0)-(x1, y1) against the
+    // window [xmin, xmax] x [ymin, ymax] (grid coordinates, +y up). Each
+    // endpoint gets a 4-bit outcode (left/right/bottom/top); both codes 0
+    // = accept, codes sharing a bit = reject, otherwise an outside endpoint
+    // is moved onto the window edge it violates and the test repeats.
+    static LineClipResult Cohen_Sutherland_Line(int x0, int y0, int x1, int y1,
+                                                int xmin, int ymin,
+                                                int xmax, int ymax);
+
+    // Sutherland-Hodgman: clips the polygon (vertices in order, last joined
+    // back to the first) against the window [xmin, xmax] x [ymin, ymax]
+    // (grid coordinates, +y up). The polygon is clipped against one window
+    // edge at a time (left, right, bottom, top); each pass keeps the part
+    // on the inside and adds the points where sides cross that edge, and the
+    // output of one pass is the input of the next.
+    static PolygonClipResult Sutherland_Hodgman_Polygon(const QVector<QPoint> &polygon,
+                                                        int xmin, int ymin,
+                                                        int xmax, int ymax);
+
+    // Puts a closed loop of edges (in any order / direction, e.g. the sides
+    // recorded by "Draw Closed Polygon") into vertex order. Returns false if
+    // the edges aren't ONE simple closed loop (a vertex that isn't shared by
+    // exactly two edges, two separate loops, fewer than 3 edges).
+    static bool Polygon_Vertices(const QVector<PolyEdge> &edges, QVector<QPoint> &vertices);
 };
 
 #endif // ALGORITHMS_H

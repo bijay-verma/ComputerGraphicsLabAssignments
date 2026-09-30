@@ -149,6 +149,21 @@ public:
     QHBoxLayout *mousePressLayout5;
     QLabel *mousePressCaption5;
     QLabel *mouse_pressed_5;
+    QGroupBox *clippingSectionGroupBox;
+    QVBoxLayout *clippingSectionLayout;
+    QLabel *clip_hint;
+    QLabel *clip_window_info;
+    QPushButton *draw_clip_window;
+    QPushButton *cohen_sutherland;
+    QPushButton *sutherland_hodgeman;
+    QGroupBox *mouseGroupBox6;
+    QVBoxLayout *mouseGroupLayout6;
+    QHBoxLayout *mouseMoveLayout6;
+    QLabel *mouseMoveCaption6;
+    QLabel *mouse_movement_6;
+    QHBoxLayout *mousePressLayout6;
+    QLabel *mousePressCaption6;
+    QLabel *mouse_pressed_6;
     QSpacerItem *verticalSpacer;
     QMenuBar *menubar;
     QStatusBar *statusbar;
@@ -1010,6 +1025,107 @@ public:
 
         controlsVerticalLayout->addWidget(transformSectionGroupBox);
 
+        clippingSectionGroupBox = new QGroupBox(scrollAreaWidgetContents);
+        clippingSectionGroupBox->setObjectName("clippingSectionGroupBox");
+        clippingSectionLayout = new QVBoxLayout(clippingSectionGroupBox);
+        clippingSectionLayout->setObjectName("clippingSectionLayout");
+        clip_hint = new QLabel(clippingSectionGroupBox);
+        clip_hint->setObjectName("clip_hint");
+        clip_hint->setWordWrap(true);
+
+        clippingSectionLayout->addWidget(clip_hint);
+
+        clip_window_info = new QLabel(clippingSectionGroupBox);
+        clip_window_info->setObjectName("clip_window_info");
+        clip_window_info->setWordWrap(true);
+
+        clippingSectionLayout->addWidget(clip_window_info);
+
+        draw_clip_window = new QPushButton(clippingSectionGroupBox);
+        draw_clip_window->setObjectName("draw_clip_window");
+        draw_clip_window->setMinimumSize(QSize(0, 44));
+        draw_clip_window->setStyleSheet(QString::fromUtf8("QPushButton {\n"
+"    background-color: rgb(255, 235, 120);\n"
+"    color: black;\n"
+"    border-radius: 4px;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    background-color: rgb(225, 205, 95);\n"
+"}"));
+
+        clippingSectionLayout->addWidget(draw_clip_window);
+
+        cohen_sutherland = new QPushButton(clippingSectionGroupBox);
+        cohen_sutherland->setObjectName("cohen_sutherland");
+        cohen_sutherland->setMinimumSize(QSize(0, 44));
+        cohen_sutherland->setStyleSheet(QString::fromUtf8("QPushButton {\n"
+"    background-color: rgb(120, 220, 255);\n"
+"    color: black;\n"
+"    border-radius: 4px;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    background-color: rgb(95, 185, 220);\n"
+"}"));
+
+        clippingSectionLayout->addWidget(cohen_sutherland);
+
+        sutherland_hodgeman = new QPushButton(clippingSectionGroupBox);
+        sutherland_hodgeman->setObjectName("sutherland_hodgeman");
+        sutherland_hodgeman->setMinimumSize(QSize(0, 44));
+        sutherland_hodgeman->setStyleSheet(QString::fromUtf8("QPushButton {\n"
+"    background-color: rgb(150, 235, 190);\n"
+"    color: black;\n"
+"    border-radius: 4px;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    background-color: rgb(120, 200, 155);\n"
+"}"));
+
+        clippingSectionLayout->addWidget(sutherland_hodgeman);
+
+        mouseGroupBox6 = new QGroupBox(clippingSectionGroupBox);
+        mouseGroupBox6->setObjectName("mouseGroupBox6");
+        mouseGroupLayout6 = new QVBoxLayout(mouseGroupBox6);
+        mouseGroupLayout6->setObjectName("mouseGroupLayout6");
+        mouseMoveLayout6 = new QHBoxLayout();
+        mouseMoveLayout6->setObjectName("mouseMoveLayout6");
+        mouseMoveCaption6 = new QLabel(mouseGroupBox6);
+        mouseMoveCaption6->setObjectName("mouseMoveCaption6");
+
+        mouseMoveLayout6->addWidget(mouseMoveCaption6);
+
+        mouse_movement_6 = new QLabel(mouseGroupBox6);
+        mouse_movement_6->setObjectName("mouse_movement_6");
+
+        mouseMoveLayout6->addWidget(mouse_movement_6);
+
+
+        mouseGroupLayout6->addLayout(mouseMoveLayout6);
+
+        mousePressLayout6 = new QHBoxLayout();
+        mousePressLayout6->setObjectName("mousePressLayout6");
+        mousePressCaption6 = new QLabel(mouseGroupBox6);
+        mousePressCaption6->setObjectName("mousePressCaption6");
+
+        mousePressLayout6->addWidget(mousePressCaption6);
+
+        mouse_pressed_6 = new QLabel(mouseGroupBox6);
+        mouse_pressed_6->setObjectName("mouse_pressed_6");
+
+        mousePressLayout6->addWidget(mouse_pressed_6);
+
+
+        mouseGroupLayout6->addLayout(mousePressLayout6);
+
+
+        clippingSectionLayout->addWidget(mouseGroupBox6);
+
+
+        controlsVerticalLayout->addWidget(clippingSectionGroupBox);
+
         verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Expanding);
 
         controlsVerticalLayout->addItem(verticalSpacer);
@@ -1129,6 +1245,17 @@ public:
         mouse_movement_5->setText(QCoreApplication::translate("MainWindow", "-", nullptr));
         mousePressCaption5->setText(QCoreApplication::translate("MainWindow", "Pressed:", nullptr));
         mouse_pressed_5->setText(QCoreApplication::translate("MainWindow", "-", nullptr));
+        clippingSectionGroupBox->setTitle(QCoreApplication::translate("MainWindow", "Clipping Algorithms", nullptr));
+        clip_hint->setText(QCoreApplication::translate("MainWindow", "Click the window's bottom-left corner, then its top-right corner (the last 2 clicked cells form the rectangular window). Press Draw Clipping Window to draw the rectangle, then press a clipping button.", nullptr));
+        clip_window_info->setText(QCoreApplication::translate("MainWindow", "Window: click 2 grid cells", nullptr));
+        draw_clip_window->setText(QCoreApplication::translate("MainWindow", "Draw Clipping Window", nullptr));
+        cohen_sutherland->setText(QCoreApplication::translate("MainWindow", "Cohen-Sutherland Line Clipping", nullptr));
+        sutherland_hodgeman->setText(QCoreApplication::translate("MainWindow", "Sutherland-Hodgeman Polygon Clipping", nullptr));
+        mouseGroupBox6->setTitle(QCoreApplication::translate("MainWindow", "Mouse Info", nullptr));
+        mouseMoveCaption6->setText(QCoreApplication::translate("MainWindow", "Position:", nullptr));
+        mouse_movement_6->setText(QCoreApplication::translate("MainWindow", "-", nullptr));
+        mousePressCaption6->setText(QCoreApplication::translate("MainWindow", "Pressed:", nullptr));
+        mouse_pressed_6->setText(QCoreApplication::translate("MainWindow", "-", nullptr));
     } // retranslateUi
 
 };

@@ -58,6 +58,10 @@ private slots:
     void on_reflect_line_polygon_clicked();
     void on_rotate_point_polygon_clicked();
 
+    void on_draw_clip_window_clicked();
+    void on_cohen_sutherland_clicked();
+    void on_sutherland_hodgeman_clicked();
+
     void on_undo_clicked();
     void on_redo_clicked();
 
@@ -185,6 +189,43 @@ private:
     // Keeps the polygon label in sync with polygonEdges / polygonPoints.
     void updatePolygonInfo();
 
+    // ---- Clipping ----
+    // The clipping window is a rectangle made from the last two clicked
+    // cells: lastPoint1 = bottom-left, lastPoint2 = top-right. (The
+    // corners are sorted, so clicking them in another order still works.)
+    // Returns false if fewer than two cells were clicked or the two
+    // cells don't span a real rectangle (same row or same column).
+    //
+    // Once "Draw Clipping Window" has been pressed the window is REMEMBERED
+    // (clipXmin.. below), so clicking cells afterwards - e.g. the two
+    // endpoints of a line drawn after the window - no longer changes it.
+    // getClipWindow returns the remembered window if there is one, else
+    // falls back to the last two clicks.
+    bool getClipWindow(int &xmin, int &ymin, int &xmax, int &ymax);
+
+    // The window described by the last two clicks only (ignores any
+    // remembered window). "Draw Clipping Window" uses this to make a new one.
+    bool getClickedWindow(int &xmin, int &ymin, int &xmax, int &ymax);
+
+    int clipXmin = 0, clipYmin = 0, clipXmax = 0, clipYmax = 0;
+    bool hasClipWindow = false;
+
+    // Keeps the window label in sync with the last two clicks.
+    void updateClipWindowInfo();
+
+    // Draws the window's outline on the canvas (one undo step).
+    void drawClipWindow(int xmin, int ymin, int xmax, int ymax);
+
+    // The clipping algorithms themselves: Cohen-Sutherland clips the last
+    // drawn line, Sutherland-Hodgman clips the closed polygon.
+    // Color to put back when clipping erases a cell: the window-outline
+    // color if the cell sits on the drawn window's border, otherwise the
+    // cell's natural (empty) color.
+    QColor clipEraseColor(int x, int y) const;
+
+    void cohenSutherlandClip(int xmin, int ymin, int xmax, int ymax);
+    void sutherlandHodgemanClip(int xmin, int ymin, int xmax, int ymax);
+
     // ---- Undo / Redo ----
     // Snapshot-based history: before any action that changes the canvas
     // (a clicked grid point, a drawn line/circle/ellipse, or a Clear),
@@ -203,6 +244,8 @@ private:
         QVector<PolyEdge> transformedEdges;
         PolyEdge lastDrawnLine;
         bool hasLastDrawnLine = false;
+        int clipXmin = 0, clipYmin = 0, clipXmax = 0, clipYmax = 0;
+        bool hasClipWindow = false;
     };
 
     CanvasState captureState();

@@ -146,6 +146,11 @@ void MainWindow::showMousePosition(QPoint &pos)
         "X : " + QString::number(sc_x) +
         ", Y : " + QString::number(sc_y)
         );
+
+    ui->mouse_movement_6->setText(
+        "X : " + QString::number(sc_x) +
+        ", Y : " + QString::number(sc_y)
+        );
 }
 
 void MainWindow::Mouse_Pressed()
@@ -178,8 +183,14 @@ void MainWindow::Mouse_Pressed()
         ", Y : " + QString::number(sc_y)
         );
 
+    ui->mouse_pressed_6->setText(
+        "X : " + QString::number(sc_x) +
+        ", Y : " + QString::number(sc_y)
+        );
+
     lastPoint1 = lastPoint2;
     lastPoint2 = QPoint(org_x, org_y);
+    updateClipWindowInfo();
 
     // Grab the cell's color before the click overwrites it - flood fill
     // needs to know what the region actually looked like.
@@ -265,6 +276,11 @@ MainWindow::CanvasState MainWindow::captureState()
     state.transformedEdges = transformedEdges;
     state.lastDrawnLine = lastDrawnLine;
     state.hasLastDrawnLine = hasLastDrawnLine;
+    state.clipXmin = clipXmin;
+    state.clipYmin = clipYmin;
+    state.clipXmax = clipXmax;
+    state.clipYmax = clipYmax;
+    state.hasClipWindow = hasClipWindow;
     return state;
 }
 
@@ -276,7 +292,13 @@ void MainWindow::restoreState(const CanvasState &state)
     transformedEdges = state.transformedEdges;
     lastDrawnLine = state.lastDrawnLine;
     hasLastDrawnLine = state.hasLastDrawnLine;
+    clipXmin = state.clipXmin;
+    clipYmin = state.clipYmin;
+    clipXmax = state.clipXmax;
+    clipYmax = state.clipYmax;
+    hasClipWindow = state.hasClipWindow;
     updatePolygonInfo();
+    updateClipWindowInfo();
 }
 
 void MainWindow::pushUndoState()
@@ -405,7 +427,9 @@ void MainWindow::on_clear_clicked()
     polygonEdges.clear();
     transformedEdges.clear();
     hasLastDrawnLine = false;
+    hasClipWindow = false;
     updatePolygonInfo();
+    updateClipWindowInfo();
 
     QPixmap pix(
         ui->frame->width(),
@@ -436,7 +460,9 @@ void MainWindow::on_spinBox_valueChanged(int arg1)
     polygonEdges.clear();
     transformedEdges.clear();
     hasLastDrawnLine = false;
+    hasClipWindow = false;
     updatePolygonInfo();
+    updateClipWindowInfo();
 
     // -----------------------------------------
     // Black background
@@ -1481,4 +1507,392 @@ void MainWindow::on_rotate_point_polygon_clicked()
         Colors::pivot_color,
         frameFunc
         );
+}
+
+
+// ========================================================
+// CLIPPING ALGORITHMS
+// ========================================================
+// Workflow: click the window's bottom-left cell, then its top-right cell
+// (the last two clicks), press Draw Clipping Window, then press a
+// clipping button.
+
+bool MainWindow::getClickedWindow(int &xmin, int &ymin, int &xmax, int &ymax)
+{
+    if (lastPoint1 == QPoint(-1, -1) || lastPoint2 == QPoint(-1, -1))
+        return false;
+
+    xmin = qMin(lastPoint1.x(), lastPoint2.x());
+    xmax = qMax(lastPoint1.x(), lastPoint2.x());
+    ymin = qMin(lastPoint1.y(), lastPoint2.y());
+    ymax = qMax(lastPoint1.y(), lastPoint2.y());
+
+    return xmin < xmax && ymin < ymax;
+}
+
+
+bool MainWindow::getClipWindow(int &xmin, int &ymin, int &xmax, int &ymax)
+{
+    // A window that has been drawn stays in force, whatever is clicked later.
+    if (hasClipWindow)
+    {
+        xmin = clipXmin;
+        ymin = clipYmin;
+        xmax = clipXmax;
+        ymax = clipYmax;
+        return true;
+    }
+
+    return getClickedWindow(xmin, ymin, xmax, ymax);
+}
+
+
+void MainWindow::updateClipWindowInfo()
+{
+    int xmin, ymin, xmax, ymax;
+    if (hasClipWindow)
+    {
+        ui->clip_window_info->setText(
+            QString("Window (drawn): bottom-left (%1, %2), top-right (%3, %4)")
+                .arg(clipXmin).arg(clipYmin).arg(clipXmax).arg(clipYmax)
+            );
+    }
+    else if (getClickedWindow(xmin, ymin, xmax, ymax))
+    {
+        ui->clip_window_info->setText(
+            QString("Window: bottom-left (%1, %2), top-right (%3, %4)")
+                .arg(xmin).arg(ymin).arg(xmax).arg(ymax)
+            );
+    }
+    else
+    {
+        ui->clip_window_info->setText("Window: click 2 grid cells");
+    }
+}
+
+
+void MainWindow::drawClipWindow(int xmin, int ymin, int xmax, int ymax)
+{
+    QVector<QPoint> corners;
+    corners.append(QPoint(xmin, ymin));
+    corners.append(QPoint(xmax, ymin));
+    corners.append(QPoint(xmax, ymax));
+    corners.append(QPoint(xmin, ymax));
+
+    AlgorithmResult outline =
+        algorithms::Polygon_Outline(algorithms::Polygon_Edges(corners));
+
+    pushUndoState();
+
+    // Remember the window (after the undo snapshot, so undo forgets it).
+    clipXmin = xmin;
+    clipYmin = ymin;
+    clipXmax = xmax;
+    clipYmax = ymax;
+    hasClipWindow = true;
+    updateClipWindowInfo();
+
+    plotGuide(outline.points, Colors::clip_window_color);
+}
+
+
+void MainWindow::on_draw_clip_window_clicked()
+{
+    int xmin, ymin, xmax, ymax;
+    if (!getClickedWindow(xmin, ymin, xmax, ymax))
+    {
+        ui->execution_time->setText(
+            "Clipping window: click 2 different cells first (bottom-left, "
+            "then top-right)"
+            );
+        return;
+    }
+
+    drawClipWindow(xmin, ymin, xmax, ymax);
+}
+
+
+void MainWindow::on_cohen_sutherland_clicked()
+{
+    int xmin, ymin, xmax, ymax;
+    if (!getClipWindow(xmin, ymin, xmax, ymax))
+    {
+        ui->execution_time->setText(
+            "Clipping: click 2 different cells first (bottom-left, then "
+            "top-right) to make the window"
+            );
+        return;
+    }
+
+    cohenSutherlandClip(xmin, ymin, xmax, ymax);
+}
+
+
+void MainWindow::on_sutherland_hodgeman_clicked()
+{
+    int xmin, ymin, xmax, ymax;
+    if (!getClipWindow(xmin, ymin, xmax, ymax))
+    {
+        ui->execution_time->setText(
+            "Clipping: click 2 different cells first (bottom-left, then "
+            "top-right) to make the window"
+            );
+        return;
+    }
+
+    sutherlandHodgemanClip(xmin, ymin, xmax, ymax);
+}
+
+
+QColor MainWindow::clipEraseColor(int x, int y) const
+{
+    if (hasClipWindow)
+    {
+        bool inBox = x >= clipXmin && x <= clipXmax &&
+                     y >= clipYmin && y <= clipYmax;
+        bool onBorder = x == clipXmin || x == clipXmax ||
+                        y == clipYmin || y == clipYmax;
+        if (inBox && onBorder)
+            return Colors::clip_window_color;
+    }
+    return naturalCellColor(x, y);
+}
+
+
+// Cohen-Sutherland line clipping. The line clipped is the last one drawn
+// with DDA or Bresenham (the same "last drawn line" the mirror uses). Only
+// cells strictly inside the window are kept. The part outside the window
+// (and on its border) is erased and the part inside is redrawn in
+// clipped_line_color. The clipped line is NOT added to the polygon edges.
+void MainWindow::cohenSutherlandClip(int xmin, int ymin, int xmax, int ymax)
+{
+    // Cells ON the window's border are not kept - only cells strictly
+    // inside it. So clip against the window shrunk by one cell on every
+    // side. (The erase step below then also wipes the line's/polygon's
+    // border cells, since they lie outside this inner window.)
+    xmin += 1;  ymin += 1;
+    xmax -= 1;  ymax -= 1;
+    if (xmin > xmax || ymin > ymax)
+    {
+        ui->execution_time->setText(
+            "Clipping: the window is too small - there are no cells strictly "
+            "inside its border (make it at least 3 cells wide and tall)"
+            );
+        return;
+    }
+
+    if (!hasLastDrawnLine)
+    {
+        ui->execution_time->setText(
+            "Cohen-Sutherland: draw a line first (DDA or Bresenham) - it is "
+            "the line that gets clipped"
+            );
+        return;
+    }
+
+    const QPoint p0 = lastDrawnLine.a;
+    const QPoint p1 = lastDrawnLine.b;
+    const QString lineName =
+        QString("(%1,%2)-(%3,%4)").arg(p0.x()).arg(p0.y()).arg(p1.x()).arg(p1.y());
+
+    LineClipResult clip = algorithms::Cohen_Sutherland_Line(
+        p0.x(), p0.y(), p1.x(), p1.y(), xmin, ymin, xmax, ymax);
+
+    if (!clip.accepted)
+    {
+        ui->execution_time->setText(
+            QString("Cohen-Sutherland: line %1 is completely outside the "
+                    "window (border cells excluded) - rejected (%2 ns)")
+                .arg(lineName).arg(clip.executionTimeNs)
+            );
+        return;
+    }
+
+    if (clip.iterations == 0)
+    {
+        ui->execution_time->setText(
+            QString("Cohen-Sutherland: line %1 is completely inside the "
+                    "window (border excluded) - accepted, nothing to clip (%2 ns)")
+                .arg(lineName).arg(clip.executionTimeNs)
+            );
+        return;
+    }
+
+    pushUndoState();
+
+    // Erase the original line's cells that lie outside the window. Only
+    // cells that still carry a line color are wiped, so other shapes that
+    // happen to cross the line are left alone.
+    GridCanvas canvas = makeGridCanvas();
+    QVector<QPoint> original =
+        algorithms::Bresenham_Line(p0.x(), p0.y(), p1.x(), p1.y()).points;
+    original += algorithms::DDA_Line(p0.x(), p0.y(), p1.x(), p1.y()).points;
+
+    for (const QPoint &p : original)
+    {
+        bool outside = p.x() < xmin || p.x() > xmax ||
+                       p.y() < ymin || p.y() > ymax;
+        if (!outside)
+            continue;
+
+        QColor here = canvas.cellColor(p.x(), p.y());
+        if (here == Colors::dda_line_color ||
+            here == Colors::bres_line_color ||
+            here == Colors::dda_bres_overlap_color)
+        {
+            addPoint(p.x(), p.y(), clipEraseColor(p.x(), p.y()), grid_size);
+        }
+    }
+
+    AlgorithmResult kept = algorithms::Bresenham_Line(
+        clip.a.x(), clip.a.y(), clip.b.x(), clip.b.y());
+
+    ui->execution_time->setText(
+        QString("Cohen-Sutherland: line %1 clipped to (%2,%3)-(%4,%5) in %6 "
+                "round(s), %7 ns")
+            .arg(lineName)
+            .arg(clip.a.x()).arg(clip.a.y())
+            .arg(clip.b.x()).arg(clip.b.y())
+            .arg(clip.iterations)
+            .arg(clip.executionTimeNs)
+        );
+
+    animatePoints(kept.points, Colors::clipped_line_color);
+}
+
+
+// Sutherland-Hodgman polygon clipping. The polygon clipped is the closed
+// polygon drawn with "Draw Closed Polygon" (the original, not a transformed
+// copy). The old outline is erased and the clipped polygon is drawn in
+// clipped_polygon_color. The clipped polygon is NOT added to polygonEdges.
+void MainWindow::sutherlandHodgemanClip(int xmin, int ymin, int xmax, int ymax)
+{
+    // Cells ON the window's border are not kept - only cells strictly
+    // inside it. So clip against the window shrunk by one cell on every
+    // side. (The erase step below then also wipes the line's/polygon's
+    // border cells, since they lie outside this inner window.)
+    xmin += 1;  ymin += 1;
+    xmax -= 1;  ymax -= 1;
+    if (xmin > xmax || ymin > ymax)
+    {
+        ui->execution_time->setText(
+            "Clipping: the window is too small - there are no cells strictly "
+            "inside its border (make it at least 3 cells wide and tall)"
+            );
+        return;
+    }
+
+    // ---- 1. get the drawn polygon as an ordered loop of vertices ----
+    QVector<PolyEdge> edges = polygonEdges;
+    bool ok = !edges.isEmpty() && algorithms::PreparePolygonEdges(edges);
+
+    // A line drawn after the polygon (e.g. the one used to test Cohen-
+    // Sutherland) was recorded as an edge too. If the polygon only closes
+    // once that last line is left out, drop it.
+    if (!ok && hasLastDrawnLine)
+    {
+        QVector<PolyEdge> trimmed = polygonEdges;
+        for (int i = trimmed.size() - 1; i >= 0; --i)
+        {
+            const PolyEdge &e = trimmed[i];
+            if ((e.a == lastDrawnLine.a && e.b == lastDrawnLine.b) ||
+                (e.a == lastDrawnLine.b && e.b == lastDrawnLine.a))
+            {
+                trimmed.remove(i);
+                break;
+            }
+        }
+        if (!trimmed.isEmpty() && algorithms::PreparePolygonEdges(trimmed))
+        {
+            edges = trimmed;
+            ok = true;
+        }
+    }
+
+    QVector<QPoint> vertices;
+    if (!ok || !algorithms::Polygon_Vertices(edges, vertices))
+    {
+        ui->execution_time->setText(
+            "Sutherland-Hodgman: draw a closed polygon first (click 3+ "
+            "points, then press Draw Closed Polygon) - loose, forked or "
+            "separate lines can't be clipped"
+            );
+        return;
+    }
+
+    // ---- 2. clip ----
+    PolygonClipResult clip = algorithms::Sutherland_Hodgman_Polygon(
+        vertices, xmin, ymin, xmax, ymax);
+
+    QVector<PolyEdge> clippedEdges = algorithms::Polygon_Edges(clip.vertices);
+
+    if (clippedEdges.isEmpty())
+    {
+        ui->execution_time->setText(
+            QString("Sutherland-Hodgman: polygon (%1 vertices) is completely "
+                    "outside the window - nothing to draw (%2 ns)")
+                .arg(clip.inputVertices).arg(clip.executionTimeNs)
+            );
+        return;
+    }
+
+    bool allInside = true;
+    for (const QPoint &v : vertices)
+    {
+        if (v.x() < xmin || v.x() > xmax || v.y() < ymin || v.y() > ymax)
+        {
+            allInside = false;
+            break;
+        }
+    }
+
+    if (allInside)
+    {
+        ui->execution_time->setText(
+            QString("Sutherland-Hodgman: polygon (%1 vertices) is completely "
+                    "inside the window - nothing to clip (%2 ns)")
+                .arg(clip.inputVertices).arg(clip.executionTimeNs)
+            );
+        return;
+    }
+
+    pushUndoState();
+
+    // ---- 3. erase the old outline ----
+    // Only cells that still carry a line/polygon color are wiped, so other
+    // shapes (and the window outline) are left alone. Every side is erased
+    // with both DDA and Bresenham cells since it may have been drawn either way.
+    GridCanvas canvas = makeGridCanvas();
+
+    for (const PolyEdge &e : edges)
+    {
+        QVector<QPoint> cells =
+            algorithms::Bresenham_Line(e.a.x(), e.a.y(), e.b.x(), e.b.y()).points;
+        cells += algorithms::DDA_Line(e.a.x(), e.a.y(), e.b.x(), e.b.y()).points;
+
+        for (const QPoint &p : cells)
+        {
+            QColor here = canvas.cellColor(p.x(), p.y());
+            if (here == Colors::polygon_color ||
+                here == Colors::dda_line_color ||
+                here == Colors::bres_line_color ||
+                here == Colors::dda_bres_overlap_color)
+            {
+                addPoint(p.x(), p.y(), clipEraseColor(p.x(), p.y()), grid_size);
+            }
+        }
+    }
+
+    // ---- 4. draw the clipped polygon ----
+    AlgorithmResult outline = algorithms::Polygon_Outline(clippedEdges);
+
+    ui->execution_time->setText(
+        QString("Sutherland-Hodgman: polygon clipped from %1 to %2 vertices "
+                "in %3 ns")
+            .arg(clip.inputVertices)
+            .arg(clip.vertices.size())
+            .arg(clip.executionTimeNs)
+        );
+
+    animatePoints(outline.points, Colors::clipped_polygon_color, 8);
 }

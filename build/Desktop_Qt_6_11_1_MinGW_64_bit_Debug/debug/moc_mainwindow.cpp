@@ -68,6 +68,9 @@ template <> constexpr inline auto MainWindow::qt_create_metaobjectdata<qt_meta_t
         "on_reflect_polygon_clicked",
         "on_reflect_line_polygon_clicked",
         "on_rotate_point_polygon_clicked",
+        "on_draw_clip_window_clicked",
+        "on_cohen_sutherland_clicked",
+        "on_sutherland_hodgeman_clicked",
         "on_undo_clicked",
         "on_redo_clicked"
     };
@@ -127,10 +130,16 @@ template <> constexpr inline auto MainWindow::qt_create_metaobjectdata<qt_meta_t
         QtMocHelpers::SlotData<void()>(28, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'on_rotate_point_polygon_clicked'
         QtMocHelpers::SlotData<void()>(29, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'on_undo_clicked'
+        // Slot 'on_draw_clip_window_clicked'
         QtMocHelpers::SlotData<void()>(30, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'on_redo_clicked'
+        // Slot 'on_cohen_sutherland_clicked'
         QtMocHelpers::SlotData<void()>(31, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'on_sutherland_hodgeman_clicked'
+        QtMocHelpers::SlotData<void()>(32, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'on_undo_clicked'
+        QtMocHelpers::SlotData<void()>(33, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'on_redo_clicked'
+        QtMocHelpers::SlotData<void()>(34, 2, QMC::AccessPrivate, QMetaType::Void),
     };
     QtMocHelpers::UintData qt_properties {
     };
@@ -181,8 +190,11 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         case 22: _t->on_reflect_polygon_clicked(); break;
         case 23: _t->on_reflect_line_polygon_clicked(); break;
         case 24: _t->on_rotate_point_polygon_clicked(); break;
-        case 25: _t->on_undo_clicked(); break;
-        case 26: _t->on_redo_clicked(); break;
+        case 25: _t->on_draw_clip_window_clicked(); break;
+        case 26: _t->on_cohen_sutherland_clicked(); break;
+        case 27: _t->on_sutherland_hodgeman_clicked(); break;
+        case 28: _t->on_undo_clicked(); break;
+        case 29: _t->on_redo_clicked(); break;
         default: ;
         }
     }
@@ -207,14 +219,14 @@ int MainWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 27)
+        if (_id < 30)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 27;
+        _id -= 30;
     }
     if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 27)
+        if (_id < 30)
             *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
-        _id -= 27;
+        _id -= 30;
     }
     return _id;
 }
